@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="探索星號查房夥伴">
+  <title>探索星號 查房夥伴</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app-root" class="container">
+    <header class="header">
+      <div class="header-icon">🚢</div>
+      <h1>麗星郵輪 查房夥伴 v1.0 by Ted Liu</h1>
+      <p>StarDream Cruises 客房空房查詢</p>
+    </header>
+
+    <div id="alert-box" class="alert alert-error" hidden></div>
+
+    <!-- Member ID verification -->
+    <section id="member-verify-section" class="card">
+      <div class="card-title">會員驗證</div>
+      <p class="bookmarklet-hint">請輸入您的會員編號以繼續</p>
+      <div class="form-group">
+        <label class="form-label" for="member-id-input">會員編號</label>
+        <input type="text" id="member-id-input" placeholder="輸入會員編號..." inputmode="numeric" autocomplete="off">
+      </div>
+      <button type="button" id="verify-member-btn" class="btn btn-primary">驗證</button>
+    </section>
+
+    <!-- Key auth & bookmarklet -->
+    <section id="key-auth-section" class="card" hidden>
+      <div class="card-title">取得金鑰</div>
+      <p id="verified-member-label" class="bookmarklet-hint"></p>
+      <div class="bookmarklet-area">
+        <a
+          id="bookmarklet"
+          class="bookmarklet-link"
+          href="javascript:(function(){function c(n){var m=document.cookie.match(new RegExp('(?:^|;\\s*)'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):'';}var a=c('SDC-WEB-TOKEN'),r=c('SDC-WEB-REFRESH-TOKEN');if(!a||!r){alert('找不到金鑰，請先登入官網');return;}var p=JSON.stringify({a:a,r:r}),b='';for(var i=0;i<p.length;i++)b+=String.fromCharCode(p.charCodeAt(i));var k=btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');navigator.clipboard.writeText(k).then(function(){alert('已複製金鑰，請回到查房頁面貼上')}).catch(function(){prompt('請手動複製：',k)});})();"
+          draggable="true"
+          onclick="alert('請將此按鈕拖曳至書籤列，而非直接點擊');return false;"
+        >📋 抓取金鑰</a>
+        <button type="button" id="copy-bookmarklet" class="btn btn-ghost" onclick="return window.sdcShowBookmarklet()">複製書籤網址</button>
+      </div>
+      <div id="bookmarklet-copy-panel" class="copy-panel" hidden>
+        <p class="copy-panel-title">請長按下方文字 → <strong>全選</strong> → <strong>拷貝</strong></p>
+        <textarea id="bookmarklet-copy-text" class="copy-panel-text" rows="5"></textarea>
+        <button type="button" id="close-copy-panel" class="btn btn-ghost copy-panel-close" onclick="return window.sdcCloseBookmarkletPanel()">關閉</button>
+      </div>
+      <p class="bookmarklet-hint bookmarklet-hint-desktop">電腦：將「抓取金鑰」拖曳至書籤列</p>
+      <p class="bookmarklet-hint bookmarklet-hint-mobile">手機：請點「複製書籤網址」，再依下方 iPhone／Android 說明手動新增書籤</p>
+
+      <details id="usage-details" class="usage-details">
+        <summary><span class="details-icon">▶</span> 使用說明</summary>
+        <ol class="usage-steps">
+          <li>前往 <a href="https://sdr.stardreamcruises.com/" target="_blank" rel="noopener">星夢郵輪官網</a> 並登入帳號</li>
+          <li>依裝置新增書籤小工具（見下方電腦／手機說明）</li>
+          <li>在官網頁面點擊書籤，金鑰會自動複製到剪貼簿</li>
+          <li>回到本頁面，貼上金鑰後點擊「認證」</li>
+          <li>選擇出發港口、人數與出發星期，點擊「開始查詢」</li>
+        </ol>
+        <details class="usage-subdetails">
+          <summary>💻 電腦（Chrome／Edge／Safari）</summary>
+          <ol class="usage-steps">
+            <li>將上方「抓取金鑰」按鈕拖曳至瀏覽器書籤列</li>
+          </ol>
+        </details>
+        <details class="usage-subdetails">
+          <summary>📱 iPhone／iPad（Safari）</summary>
+          <ol class="usage-steps">
+            <li>點擊「複製書籤網址」，在出現的文字框 <strong>長按 → 全選 → 拷貝</strong></li>
+            <li>用 Safari 開啟任意網頁，點下方 <strong>分享</strong> → <strong>加入書籤</strong></li>
+            <li>點底部 <strong>書籤</strong> 圖示 → 點右下角 <strong>編輯</strong></li>
+            <li>點剛建立的書籤 → 將 <strong>網址</strong> 欄位內容全選刪除，<strong>貼上</strong>剛複製的書籤網址</li>
+            <li>名稱可改為「Sync」等，點<strong>完成</strong>儲存</li>
+            <li>之後在官網登入狀態下，點此書籤即可複製金鑰</li>
+          </ol>
+          <p class="usage-note">iOS 不支援拖曳加入書籤，必須用「編輯書籤網址」方式設定。</p>
+        </details>
+        <details class="usage-subdetails">
+          <summary>🤖 Android（Chrome）</summary>
+          <ol class="usage-steps">
+            <li>點擊「複製書籤網址」，在出現的文字框 <strong>長按 → 全選 → 複製</strong></li>
+            <li>用 Chrome 開啟任意網頁，點右上角 <strong>⋮</strong> → <strong>書籤</strong> → <strong>書籤</strong>（或先點網址列旁的 ⭐ 加入書籤）</li>
+            <li>在書籤列表找到剛加入的項目，長按 → <strong>編輯</strong>（或點 ⋮ → 編輯）</li>
+            <li>將 <strong>網址</strong> 欄位內容全選刪除，<strong>貼上</strong>剛複製的書籤網址</li>
+            <li>名稱可改為「Sync」等，儲存</li>
+            <li>之後在官網登入狀態下，點此書籤即可複製金鑰</li>
+          </ol>
+          <p class="usage-note">Android 同樣不支援拖曳書籤列；若 Chrome 無法執行書籤，可改用 Firefox，步驟類似。</p>
+        </details>
+      </details>
+
+      <div class="form-group" style="margin-top: 1.25rem">
+        <label class="form-label" for="token-input">金鑰</label>
+        <div class="token-row">
+          <input type="password" id="token-input" placeholder="貼上金鑰..." autocomplete="off">
+          <button type="button" id="paste-token" class="btn btn-ghost">貼上</button>
+          <button type="button" id="toggle-token" class="btn btn-ghost">顯示</button>
+        </div>
+      </div>
+
+      <button type="button" id="login-btn" class="btn btn-primary">認證</button>
+    </section>
+
+    <!-- Member Info -->
+    <section id="member-card" class="card" hidden>
+      <div class="card-title">會員資料</div>
+      <div id="member-grid" class="member-grid"></div>
+    </section>
+
+    <!-- Query Controls -->
+    <section id="query-controls" class="card" hidden>
+      <div class="card-title">查詢設定</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="port-select">出發港口</label>
+          <select id="port-select" disabled>
+            <option value="">請選擇出發港口</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="persons-select">人數</label>
+          <select id="persons-select" disabled>
+            <option value="1">1 人</option>
+            <option value="2" selected>2 人</option>
+            <option value="3">3 人</option>
+            <option value="4">4 人</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">出發星期</label>
+        <div class="weekday-mode">
+          <label class="weekday-mode-option">
+            <input type="radio" name="weekday-mode" id="weekday-mode-all" value="all" checked>
+            <span>全部查詢</span>
+          </label>
+          <label class="weekday-mode-option">
+            <input type="radio" name="weekday-mode" id="weekday-mode-filter" value="filter">
+            <span>指定星期</span>
+          </label>
+        </div>
+        <div id="weekday-picker" class="weekday-picker" hidden>
+          <button type="button" class="weekday-btn" data-day="0" aria-pressed="false">日</button>
+          <button type="button" class="weekday-btn" data-day="1" aria-pressed="false">一</button>
+          <button type="button" class="weekday-btn" data-day="2" aria-pressed="false">二</button>
+          <button type="button" class="weekday-btn" data-day="3" aria-pressed="false">三</button>
+          <button type="button" class="weekday-btn" data-day="4" aria-pressed="false">四</button>
+          <button type="button" class="weekday-btn" data-day="5" aria-pressed="false">五</button>
+          <button type="button" class="weekday-btn" data-day="6" aria-pressed="false">六</button>
+        </div>
+      </div>
+      <button type="button" id="query-btn" class="btn btn-accent" disabled>開始查詢</button>
+    </section>
+
+    <!-- VIP Auto Watch -->
+    <section id="vip-section" class="card vip-card" hidden>
+      <div class="card-title vip-card-title">
+        VIP 自動輪巡
+        <span id="vip-tier-badge" class="vip-tier-badge">VIP1</span>
+      </div>
+      <p id="vip-tier-hint" class="bookmarklet-hint"></p>
+
+      <div id="vip-setup-panel">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="vip-port-select">出發港口</label>
+            <select id="vip-port-select">
+              <option value="">請選擇出發港口</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vip-date-select">出發日期</label>
+            <select id="vip-date-select" disabled>
+              <option value="">請選擇出發日期</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" id="vip-add-voyage-btn" class="btn btn-ghost">＋ 加入航程</button>
+        <div id="vip-voyage-list" class="vip-voyage-list"></div>
+
+        <div class="form-group" style="margin-top: 1rem">
+          <label class="form-label" for="vip-persons-select">人數</label>
+          <select id="vip-persons-select">
+            <option value="1">1 人</option>
+            <option value="2" selected>2 人</option>
+            <option value="3">3 人</option>
+            <option value="4">4 人</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">監控艙房（至少勾選一種）</label>
+          <div class="vip-cabin-checkboxes">
+            <label class="vip-cabin-option">
+              <input type="checkbox" class="vip-cabin-checkbox" value="Balcony Stateroom" checked>
+              <span>陽台房</span>
+            </label>
+            <label class="vip-cabin-option">
+              <input type="checkbox" class="vip-cabin-checkbox" value="Oceanview Stateroom" checked>
+              <span>海景房</span>
+            </label>
+            <label class="vip-cabin-option">
+              <input type="checkbox" class="vip-cabin-checkbox" value="Interior Stateroom" checked>
+              <span>內艙房</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="vip-notify-channel">通知方式</label>
+            <select id="vip-notify-channel">
+              <option value="webhook">Webhook URL</option>
+              <option value="telegram">Telegram</option>
+              <option value="ntfy">ntfy</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vip-notify-target">通知目標</label>
+            <input type="text" id="vip-notify-target" placeholder="Webhook URL 或 Chat ID..." autocomplete="off">
+          </div>
+        </div>
+        <p id="vip-notify-hint" class="bookmarklet-hint"></p>
+
+        <button type="button" id="vip-submit-watch-btn" class="btn btn-accent">啟動自動輪巡</button>
+      </div>
+
+      <div id="vip-active-panel" hidden>
+        <div class="vip-active-header">
+          <span id="vip-watch-status" class="vip-status vip-status-active">輪巡中</span>
+        </div>
+        <div id="vip-watch-detail" class="vip-watch-detail"></div>
+        <div class="vip-active-actions">
+          <button type="button" id="vip-renew-token-btn" class="btn btn-primary" hidden>更新輪巡金鑰</button>
+          <button type="button" id="vip-delete-watch-btn" class="btn btn-ghost">停止輪巡</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section id="progress-section" class="card" hidden>
+      <div class="card-title">查詢進度</div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-fill"></div>
+        </div>
+        <div class="progress-info">
+          <span id="progress-text">準備中...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results-section" class="card" hidden>
+      <div class="card-title">查詢結果</div>
+      <div id="results-meta" class="results-meta"></div>
+      <div id="results-list"></div>
+    </section>
+
+    <footer class="footer">
+      金鑰僅暫存於本機 sessionStorage，關閉分頁後自動清除。請勿分享金鑰給他人。
+      <p>Copyright © 2026 Ted Liu. 保留一切權利。</p>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    function scrollToAlert(box) {
+      if (!box) return;
+      requestAnimationFrame(function () {
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+    function showBookmarkletCopy() {
+      var link = document.getElementById('bookmarklet');
+      var panel = document.getElementById('bookmarklet-copy-panel');
+      var text = document.getElementById('bookmarklet-copy-text');
+      var alertBox = document.getElementById('alert-box');
+      if (!link || !panel || !text) {
+        if (alertBox) {
+          alertBox.hidden = false;
+          alertBox.removeAttribute('hidden');
+          alertBox.className = 'alert alert-error';
+          alertBox.textContent = '無法載入，請重新整理頁面';
+          scrollToAlert(alertBox);
+        }
+        return false;
+      }
+      var url = link.getAttribute('href') || '';
+      text.value = url;
+      panel.hidden = false;
+      panel.removeAttribute('hidden');
+      if (alertBox) {
+        alertBox.hidden = false;
+        alertBox.removeAttribute('hidden');
+        alertBox.className = 'alert alert-success';
+        alertBox.textContent = '請在下方文字框長按 → 全選 → 拷貝';
+      }
+      setTimeout(function () {
+        text.focus();
+        text.select();
+        try { text.setSelectionRange(0, url.length); } catch (e) {}
+      }, 80);
+      setTimeout(function () {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      return false;
+    }
+    window.sdcShowBookmarklet = showBookmarkletCopy;
+    window.sdcCloseBookmarkletPanel = function () {
+      var panel = document.getElementById('bookmarklet-copy-panel');
+      if (panel) {
+        panel.hidden = true;
+        panel.setAttribute('hidden', '');
+      }
+      return false;
+    };
+  })();
+  </script>
+  <script>window.__SDC_API_BASE = 'https://cabin-api.its-tedliu.workers.dev';</script>
+  <script src="dist/js/keys.js"></script>
+  <script src="dist/js/api.js"></script>
+  <script src="dist/js/vip.js"></script>
+  <script src="dist/js/app.js"></script>
+</body>
+</html>
